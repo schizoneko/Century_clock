@@ -1,4 +1,45 @@
+# Quartus Prime
+db/
+incremental_db/
+output_files/
+greybox_tmp/
+simulation/
+*.smsg
+*.qws
+*.rpt
+*.sof
+*.pof
+*.jic
+*.sta.rpt
+*.qip
+*.bak
+*.qdf
+*.qdz
+*.qar
+*.sld
+
+# ModelSim/Questa
 work/
-*.txt
-*.vcd
+transcript
 *.wlf
+vsim.wlf
+*.vcd
+*.asdb
+*.log
+
+# Common
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.bin
+*.dat
+*.hex
+*.elf
+*.o
+*.obj
+.DS_Store
+Thumbs.db
+
+transcript
+*.txt
