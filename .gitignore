@@ -1,4 +1,4 @@
 work/
-.txt
-.vcd
-.wlf
+*.txt
+*.vcd
+*.wlf

@@ -6,9 +6,9 @@ module count_hour #(
     input                                   rst_n,
     input                                   en_h,
     input                                   up, down,             
-    output  reg [MAX_DISPLAY_UNIT - 1 : 0]  hour_unit,        
-    output  reg [MAX_DISPLAY_TEN  - 1 : 0]  hour_ten,         
-    output  reg                             pulse_h       
+    output reg  [MAX_DISPLAY_UNIT - 1 : 0]  hour_unit,        
+    output reg  [MAX_DISPLAY_TEN  - 1 : 0]  hour_ten,         
+    output                                  pulse_h       
 );
 
     reg pulse_hour_ten;
@@ -41,7 +41,6 @@ module count_hour #(
                 end
             end
             else begin
-                pulse_hour_ten <= 1'b0; 
                 if (up && !down) begin
                     if (hour_ten == 2 && hour_unit == 3) begin
                         hour_ten  <= 0;

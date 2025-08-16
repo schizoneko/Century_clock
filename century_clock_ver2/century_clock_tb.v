@@ -76,7 +76,7 @@ module century_clock_tb;
 
     // Số bước giả lập (tùy tần số chia) để ra 1 thập kỷ
     // Nếu F_OUT trong clock_divider được set nhỏ, bạn điều chỉnh vòng for này cho vừa
-    for (i = 0; i < 120*320; i = i + 1) begin
+    for (i = 0; i < 120; i = i + 1) begin
       @(posedge dut.pulse_mo); // chờ rollover tháng
       month_val = dut.month_ten*10 + dut.month_unit;
       year_val  = dut.year_thou*1000 + dut.year_hund*100 + dut.year_ten*10 + dut.year_unit;

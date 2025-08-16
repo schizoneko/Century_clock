@@ -7,14 +7,14 @@ module counter #(
     input                               en,
     input                               up, down,
     output  reg [BIT_SIZE - 1 : 0]      count,
-    output  reg                         pulse_o
+    output                              pulse_o
 );
 
 reg pulse;
 
 always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-        count   <= {BIT_SIZE{1'b0}};;
+        count   <= {BIT_SIZE{1'b0}};
         pulse   <= 1'b0;
     end 
     else begin
@@ -22,8 +22,10 @@ always @(posedge clk or negedge rst_n) begin
             if (count == MAX_COUNT) begin
                 count <= {BIT_SIZE{1'b0}};
                 pulse <= 1'b0;
-            end else
+            end 
+            else begin
                 count <= count + {{(BIT_SIZE-1){1'b0}}, 1'b1};
+            end
 
             if (count == (MAX_COUNT - 1)) begin
                 pulse <= 1'b1;
@@ -32,8 +34,7 @@ always @(posedge clk or negedge rst_n) begin
                 pulse <= 1'b0;
             end
         end
-        else begin
-            pulse <= 1'b0; 
+        else begin 
             if (up && !down) begin
                 if (count == MAX_COUNT[BIT_SIZE-1:0])
                     count <= {BIT_SIZE{1'b0}};
@@ -47,7 +48,7 @@ always @(posedge clk or negedge rst_n) begin
                     count <= count - {{(BIT_SIZE-1){1'b0}}, 1'b1};
             end
             else begin
-                count <= 0;
+                count <= count;
             end
         end
     end
