@@ -1,52 +1,59 @@
 module clock_divider #(
-    parameter integer F_IN  = 50_000_000,  // Hz
-    parameter integer F_OUT = 100_000        // Hz
+    parameter integer F_IN = 50_000_000  // Hz
 )(
-    input       clk,
-    input       rst_n,
-    output      clk_out,   // xung vuông F_OUT 
-    output reg  ce_out     // xung 1 chu kỳ ở F_OUT (50 kHz)
+    input  wire clk,
+    input  wire rst_n,
+    input  wire sel,        // 1: 10 kHz, 0: 1 Hz  (async from a switch)
+    output reg  clk_out
 );
-    // Toggle mỗi HALF chu kỳ để ra xung vuông F_OUT
-    localparam integer HALF = F_IN / (2*F_OUT);
-    // Đếm trọn 1 chu kỳ để tạo CE 1-shot tại F_OUT
-    localparam integer TICK = F_IN / F_OUT;
+    // Half-period constants
+    localparam integer HALF_10K = F_IN / (2*10_000);
+    localparam integer HALF_1HZ = F_IN / 2;
 
-    // Chiều rộng counter
-    localparam integer W_HALF = (HALF <= 1) ? 1 : $clog2(HALF);
-    localparam integer W_TICK = (TICK <= 1) ? 1 : $clog2(TICK);
-
-    reg [W_HALF-1:0] cnt_half = {W_HALF{1'b0}};
-    reg [W_TICK-1:0] cnt_tick = {W_TICK{1'b0}};
-    reg clk_reg = 1'b0;
-
+    // 1) Đồng bộ sel (2 FF)
+    reg sel_s0, sel_s1;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            cnt_half <= {W_HALF{1'b0}};
-            cnt_tick <= {W_TICK{1'b0}};
-            clk_reg  <= 1'b0;
-            ce_out   <= 1'b0;
+            sel_s0 <= 1'b0;
+            sel_s1 <= 1'b0;
         end else begin
-            // Mặc định không kích CE
-            ce_out <= 1'b0;
-
-            // Tạo xung vuông 50 kHz
-            if (cnt_half == HALF-1) begin
-                cnt_half <= {W_HALF{1'b0}};
-                clk_reg  <= ~clk_reg;
-            end else begin
-                cnt_half <= cnt_half + 1'b1;
-            end
-
-            // Tạo CE 1 chu kỳ ở 50 kHz
-            if (cnt_tick == TICK-1) begin
-                cnt_tick <= {W_TICK{1'b0}};
-                ce_out   <= 1'b1;
-            end else begin
-                cnt_tick <= cnt_tick + 1'b1;
-            end
+            sel_s0 <= sel;
+            sel_s1 <= sel_s0;
         end
     end
 
-    assign clk_out = clk_reg;
+    // 2) Theo dõi đổi trạng thái của sel đã đồng bộ
+    reg sel_sync_d;
+    wire sel_changed = (sel_s1 ^ sel_sync_d);
+
+    // 3) Lưu ngưỡng hiện hành vào thanh ghi (tránh dao động tổ hợp)
+    reg [31:0] half_target_r;
+    reg [31:0] cnt;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sel_sync_d    <= 1'b0;
+            half_target_r <= HALF_1HZ;   // mặc định 1 Hz
+            cnt           <= 32'd0;
+            clk_out       <= 1'b0;
+        end else begin
+            // chốt sel sync
+            sel_sync_d <= sel_s1;
+
+            // Nếu sel đổi: nạp ngưỡng mới và reset đếm/pha để tránh xung "vô định"
+            if (sel_changed) begin
+                half_target_r <= sel_s1 ? HALF_10K : HALF_1HZ;
+                cnt           <= 32'd0;
+                clk_out       <= 1'b0;   
+            end else begin
+                // Bình thường đếm và đảo pha khi đủ nửa chu kỳ
+                if (cnt >= half_target_r - 1) begin
+                    cnt     <= 32'd0;
+                    clk_out <= ~clk_out;
+                end else begin
+                    cnt <= cnt + 1'b1;
+                end
+            end
+        end
+    end
 endmodule

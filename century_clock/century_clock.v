@@ -2,14 +2,11 @@ module century_clock (
     input               clk,
     input               rst_n,
     input               en_s,
-    input               display_mode,
+    input               display_mode,           // xx/hh/mmss | dd/momo/yyyy
 
-    input               up_s,   down_s,
-    input               up_m,   down_m,
-    input               up_h,   down_h,
-    input               up_d,   down_d,
-    input               up_mo,  down_mo,
-    input               up_y,   down_y,
+    input               up, down,
+    input               sel_blink,              // Select which section are being changed (ss, mm, hh, dd, momo, yryr)
+    input               sel_clk,                // 1: 10 kHz, 0: 1 Hz
 
     output      [6:0]   led0, led1, led2, led3,
     output      [6:0]   led4, led5,
@@ -24,6 +21,15 @@ module century_clock (
     wire         TO, T, TN;
     wire         leap_year;
 
+    wire         up_s,   down_s;
+    wire         up_m,   down_m;
+    wire         up_h,   down_h;
+    wire         up_d,   down_d;
+    wire         up_mo,  down_mo;
+    wire         up_y,   down_y;
+
+    wire  [2:0]   blink;
+
     wire  [3:0]   sec_unit, sec_ten;
     wire  [3:0]   min_unit, min_ten;
     wire  [3:0]   hour_unit; 
@@ -37,19 +43,44 @@ module century_clock (
     wire clk_1hz;
     wire ce_1hz;
 
+    wire sel_pulse;
+    wire up_pulse;
+    wire down_pulse;
+
     clock_divider #(
-        .F_IN (50_000_000),
-        .F_OUT(10)
-    ) u_div50k (
+        .F_IN (50_000_000)
+    ) u_div (
         .clk    (clk),
         .rst_n  (rst_n),
-        .clk_out(clk_1hz),   
-        .ce_out (ce_1hz)     
+        .sel    (sel_clk),
+        .clk_out(clk_1hz)   
+    );
+
+    control_unit u_cu (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en         (en_s),
+        .select     (sel_blink),                 
+        .up         (up),               
+        .down       (down),
+        .up_s       (up_s),   
+        .down_s     (down_s),     
+        .up_m       (up_m),   
+        .down_m     (down_m),     
+        .up_h       (up_h),   
+        .down_h     (down_h),     
+        .up_d       (up_d),   
+        .down_d     (down_d),     
+        .up_mo      (up_mo),  
+        .down_mo    (down_mo),
+        .up_y       (up_y),
+        .down_y     (down_y),     
+        .blink      (blink)                 
     );
 
     // ======= SECOND =======
     count_second u_sec (
-        .clk        (clk),
+        .clk        (clk_1hz),
         .rst_n      (rst_n),
         .en_s       (en_s),
         .up         (up_s),
@@ -61,7 +92,7 @@ module century_clock (
 
     // ======= MINUTE =======
     count_minute u_min (
-        .clk        (clk),
+        .clk        (clk_1hz),
         .rst_n      (rst_n),
         .en_m       (pulse_s),  
         .up         (up_m),
@@ -73,7 +104,7 @@ module century_clock (
 
     // ======= HOUR  =======
     count_hour u_hour (
-        .clk        (clk),
+        .clk        (clk_1hz),
         .rst_n      (rst_n),
         .en_h       (pulse_m),     
         .up         (up_h),
@@ -85,7 +116,7 @@ module century_clock (
 
     // =======  DAY  =======
     count_day u_day (
-        .clk        (clk),
+        .clk        (clk_1hz),
         .rst_n      (rst_n),
         .en_d       (pulse_h),  
         .up         (up_d),
@@ -101,7 +132,7 @@ module century_clock (
 
     // ======= MONTH =======
     count_month u_month (
-        .clk        (clk),
+        .clk        (clk_1hz),
         .rst_n      (rst_n),
         .en_mo      (pulse_day),  
         .up         (up_mo),
@@ -116,7 +147,7 @@ module century_clock (
 
     // =======  YEAR  =======
     count_year u_year (
-        .clk       (clk),
+        .clk       (clk_1hz),
         .rst_n     (rst_n),
         .en_yr     (pulse_mo),   
         .up        (up_y),
@@ -130,6 +161,12 @@ module century_clock (
 
     // ======= DISPLAY =======
     display_mode u_disp (
+        .clk_in        (clk_1hz),
+        .rst_n      (rst_n),
+
+        .mode       (display_mode),
+        .blink_mode (blink),
+
         .sec_unit   (sec_unit),
         .sec_ten    (sec_ten),
         .min_unit   (min_unit),
@@ -144,7 +181,6 @@ module century_clock (
         .year_ten   (year_ten),
         .year_thou  (year_thou),
         .year_unit  (year_unit),
-        .mode       (display_mode),
 
         .led0(led0), .led1(led1), .led2(led2), .led3(led3),
         .led4(led4), .led5(led5), .led6(led6), .led7(led7)

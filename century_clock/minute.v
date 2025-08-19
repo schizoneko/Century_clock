@@ -6,37 +6,76 @@ module count_minute #(
     input                                   rst_n,
     input                                   en_m,  
     input                                   up, down,
-    output      [MAX_DISPLAY_UNIT - 1 : 0]  min_unit,         
-    output      [MAX_DISPLAY_TEN  - 1 : 0]  min_ten,
+    output reg  [MAX_DISPLAY_UNIT - 1 : 0]  min_unit,         
+    output reg  [MAX_DISPLAY_TEN  - 1 : 0]  min_ten,
     output                                  pulse_m          
 );
 
-    wire pulse_unit;
+    reg pulse_minute_ten;
 
-    counter #(
-        .MAX_COUNT(9),
-        .BIT_SIZE(4)
-    ) u_count_unit (
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(en_m),
-        .up(up),
-        .down(down),
-        .count(min_unit),
-        .pulse_o(pulse_unit)
-    );
+    always @(posedge clk or negedge rst_n) begin
+        if (~rst_n) begin
+            min_unit        <= 0;
+            min_ten       <= 0;
+            pulse_minute_ten  <= 0;
+        end else begin
+            if (en_m) begin
+                if (min_unit == 9 && min_ten == 5) begin
+                    min_unit        <= 0;
+                    min_ten         <= 0;
+                    pulse_minute_ten  <= 0;
+                end
+                else if (min_unit == 9) begin
+                    min_unit     <= 0;
+                    min_ten      <= min_ten + 1;
+                end
+                else begin
+                    min_unit   <= min_unit + 1;
+                end
 
-    counter #(
-        .MAX_COUNT(5),
-        .BIT_SIZE(4)
-    ) u_count_ten (
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(pulse_unit),
-        .up(up),
-        .down(down),             
-        .count(min_ten),
-        .pulse_o(pulse_m)                     
-    );
+                if (min_unit == 8 && min_ten == 5) begin
+                    pulse_minute_ten  <= 1;
+                end
+                else begin
+                    pulse_minute_ten  <= 0;
+                end
+            end
+            else begin
+                if (up && !down) begin
+                    if (min_unit == 9 && min_ten == 5) begin
+                        min_unit  <= 0;
+                        min_ten   <= 0;
+                    end
+                    else if (min_unit == 9) begin
+                        min_unit <= 0;
+                        min_ten  <= min_ten + 1;
+                    end
+                    else begin
+                        min_unit <= min_unit + 1;
+                    end
+                end
+                else if (down && !up) begin
+                    if (min_ten == 0 && min_ten == 0) begin
+                        min_ten   <= 5;
+                        min_unit  <= 9;
+                    end
+                    else if (min_ten == 0) begin
+                        min_unit <= 9;
+                        min_ten  <= min_ten - 1;
+                    end
+                    else begin
+                        min_unit <= min_unit - 1;
+                    end
+                end
+                else begin
+                    min_unit  <= min_unit;
+                    min_ten   <= min_ten;
+                end
+            end
+            
+        end
+    end
+
+    assign pulse_m = pulse_minute_ten & en_m;
 
 endmodule

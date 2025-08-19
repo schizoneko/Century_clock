@@ -15,10 +15,6 @@ module count_month #(
 
     reg pulse_month;
 
-    wire valid_0x = (month_ten == 2'b00) && (month_unit >= 4'd1) && (month_unit <= 4'd9);
-    wire valid_1x = (month_ten == 2'b01) && (month_unit <= 4'd2);
-    wire valid    = valid_0x | valid_1x;
-
     always @(posedge clk or negedge rst_n)
     begin 
         if (~rst_n) begin

@@ -15,6 +15,8 @@ module count_year #(
     output                          leap_year   
 );
 
+    wire xx_00, xx; 
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             year_unit <= 0;
@@ -100,6 +102,8 @@ module count_year #(
         end
     end
 
-    assign leap_year = (~year_ten[0] & ~year_unit[0] & ~year_unit[1]) | (year_ten[0] & year_unit[1] & ~year_unit[0]);
+    assign xx        = (~year_ten[0] & ~year_unit[0] & ~year_unit[1]) | (year_ten[0] & year_unit[1] & ~year_unit[0]);
+    assign xx_00     = xx & (~|year_ten) & (~|year_unit);
+    assign leap_year = xx | xx_00;
 
 endmodule
