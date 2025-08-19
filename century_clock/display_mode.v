@@ -1,7 +1,4 @@
 module display_mode (
-    input               clk_in,
-    input               rst_n,
-
     input       [3:0]   sec_unit, sec_ten,
     input       [3:0]   min_unit, min_ten,
     input       [3:0]   hour_unit, 
@@ -13,7 +10,8 @@ module display_mode (
     input       [3:0]   year_hund, year_ten, year_thou, year_unit,
     
     input               mode,         // Select display
-    input       [2:0]   blink_mode,   // Blink blink                 
+    input       [2:0]   blink_mode,   // Blink blink       
+    input               tick_blink,          
 
     output reg  [6:0]   led0, led1, led2, led3,
     output reg  [6:0]   led4, led5,
@@ -60,18 +58,7 @@ module display_mode (
     wire [6:0] sel5 = mode ? t_led5 : d_led5;
     wire [6:0] sel6 = mode ? t_led6 : d_led6;
     wire [6:0] sel7 = mode ? t_led7 : d_led7;
- 
-    //------     Blink tick       ------
-    reg       tick_blink;
 
-    always @(posedge clk_in or negedge rst_n) begin
-        if (!rst_n) begin
-            tick_blink  <= 0;
-        end
-        else begin
-            tick_blink  <= ~tick_blink;
-        end
-    end
 
     //------      Blink mode        ------
     always @(*) begin

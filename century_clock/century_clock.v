@@ -29,6 +29,7 @@ module century_clock (
     wire         up_y,   down_y;
 
     wire  [2:0]   blink;
+    wire          tick_blink;
 
     wire  [3:0]   sec_unit, sec_ten;
     wire  [3:0]   min_unit, min_ten;
@@ -74,7 +75,8 @@ module century_clock (
         .up_mo      (up_mo),  
         .down_mo    (down_mo),
         .up_y       (up_y),
-        .down_y     (down_y),     
+        .down_y     (down_y),
+        .tick_blink (tick_blink),     
         .blink      (blink)                 
     );
 
@@ -161,8 +163,7 @@ module century_clock (
 
     // ======= DISPLAY =======
     display_mode u_disp (
-        .clk_in        (clk_1hz),
-        .rst_n      (rst_n),
+        .tick_blink (tick_blink),
 
         .mode       (display_mode),
         .blink_mode (blink),

@@ -14,6 +14,7 @@ module control_unit (
     output reg          up_mo,  down_mo,    // month
     output reg          up_y,   down_y,     // year
 
+    output reg          tick_blink,
     output reg  [2:0]   blink                 
 );
 
@@ -26,6 +27,16 @@ module control_unit (
 
     reg [2:0] state, next_state;
 
+    //------     Blink tick       ------
+
+    always @(posedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin
+            tick_blink  <= 0;
+        end
+        else begin
+            tick_blink  <= ~tick_blink;
+        end
+    end
 
     always @(posedge clk or negedge rst_n) begin : State_Transitions
         if (!rst_n) begin
