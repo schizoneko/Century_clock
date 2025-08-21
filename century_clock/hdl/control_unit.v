@@ -29,7 +29,7 @@ module control_unit (
 
     //------     Blink tick       ------
 
-    always @(posedge clk_in or negedge rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             tick_blink  <= 0;
         end

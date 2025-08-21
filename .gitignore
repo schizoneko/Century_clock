@@ -1,7 +1,6 @@
-# Quartus Prime
+# Quartus
 db/
 incremental_db/
-output_files/
 greybox_tmp/
 simulation/
 *.smsg
@@ -18,7 +17,7 @@ simulation/
 *.qar
 *.sld
 
-# ModelSim/Questa
+# Questa
 work/
 transcript
 *.wlf
@@ -41,4 +40,7 @@ vsim.wlf
 .DS_Store
 Thumbs.db
 
+# Others
+spec/
+video/
 *.txt
