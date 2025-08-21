@@ -8,14 +8,14 @@ module count_year #(
     input                           rst_n,
     input                           en_yr,      
     input                           up,down,
-    output reg [MAX_UNIT -1:0]      year_unit,
-    output reg [MAX_TEN  -1:0]      year_ten,
-    output reg [MAX_HUND -1:0]      year_hund,
-    output reg [MAX_THOU -1:0]      year_thou,
+    output reg  [MAX_UNIT -1:0]     year_unit,
+    output reg  [MAX_TEN  -1:0]     year_ten,
+    output reg  [MAX_HUND -1:0]     year_hund,
+    output reg  [MAX_THOU -1:0]     year_thou,
     output                          leap_year   
 );
 
-    wire xx_00, xx; 
+    wire xx00, xx;      // xx: divided by 4, xx00: divided by 400
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -103,7 +103,7 @@ module count_year #(
     end
 
     assign xx        = (~year_ten[0] & ~year_unit[0] & ~year_unit[1]) | (year_ten[0] & year_unit[1] & ~year_unit[0]);
-    assign xx_00     = xx & (~|year_ten) & (~|year_unit);
-    assign leap_year = xx | xx_00;
+    assign xx00      = xx & (~|year_ten) & (~|year_unit);
+    assign leap_year = xx | xx00;
 
 endmodule

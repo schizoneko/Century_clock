@@ -3,7 +3,7 @@ module clock_divider #(
 )(
     input  wire clk,
     input  wire rst_n,
-    input  wire sel,        // 1: 10 kHz, 0: 1 Hz  (async from a switch)
+    input  wire sel,        // 1: 10 kHz, 0: 1 Hz 
     output reg  clk_out
 );
     // Half-period constants
@@ -56,4 +56,5 @@ module clock_divider #(
             end
         end
     end
+    
 endmodule

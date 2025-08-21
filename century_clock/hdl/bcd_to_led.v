@@ -3,7 +3,7 @@ module bcd_to_led (
     output reg [6:0] led
 );
 
-    always @(*) begin
+    always @(bcd) begin
         case (bcd)
             4'b0000: led = ~7'b0111111; // 0
             4'b0001: led = ~7'b0000110; // 1

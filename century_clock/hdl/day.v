@@ -1,5 +1,4 @@
 module count_day #(
-    parameter STATE_COUNT       = 3,
     parameter MAX_DISPLAY_UNIT  = 4,
     parameter MAX_DISPLAY_TEN   = 2
 ) (

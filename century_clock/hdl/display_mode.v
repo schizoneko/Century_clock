@@ -61,10 +61,8 @@ module display_mode (
 
 
     //------      Blink mode        ------
-    always @(*) begin
-        led0 = sel0; led1 = sel1; led2 = sel2; led3 = sel3;
-        led4 = sel4; led5 = sel5; led6 = sel6; led7 = sel7;
-
+    always @(blink_mode or tick_blink or sel0 or sel1 or sel2 or sel3 or sel4 or sel5 or sel6 or sel7) 
+    begin
         case (blink_mode)
             3'b001: begin 
                 if (tick_blink) begin
@@ -76,6 +74,7 @@ module display_mode (
                     led1 = sel1;
                 end
             end
+
             3'b010: begin
                 if (tick_blink) begin
                     led2 = BLINK; 
@@ -86,6 +85,7 @@ module display_mode (
                     led3 = sel3;
                 end
             end
+
             3'b011: begin 
                 if (tick_blink) begin
                     led4 = BLINK; 
@@ -96,6 +96,7 @@ module display_mode (
                     led5 = sel5;
                 end
             end
+
             3'b100: begin 
                 if (tick_blink) begin
                     led6 = BLINK; 
@@ -106,12 +107,18 @@ module display_mode (
                     led7 = sel7;
                 end
             end
+
             3'b101: begin 
                 if (tick_blink) begin
                     led4 = BLINK; 
                     led5 = BLINK;
                 end
+                else begin 
+                    led4 = sel4;
+                    led5 = sel5;
+                end
             end
+
             3'b110: begin 
                 if (tick_blink) begin
                     led0 = BLINK; 
@@ -119,7 +126,14 @@ module display_mode (
                     led2 = BLINK; 
                     led3 = BLINK;
                 end
+                else begin  
+                    led0 = sel0; 
+                    led1 = sel1; 
+                    led2 = sel2; 
+                    led3 = sel3;
+                end
             end
+
             default: 
             begin
                 led0 = sel0; led1 = sel1; led2 = sel2; led3 = sel3;
@@ -127,7 +141,5 @@ module display_mode (
             end
         endcase
     end
-
-
-
+    
 endmodule

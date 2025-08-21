@@ -28,7 +28,6 @@ module control_unit (
     reg [2:0] state, next_state;
 
     //------     Blink tick       ------
-
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             tick_blink  <= 0;
@@ -38,6 +37,7 @@ module control_unit (
         end
     end
 
+    //------     FSM       ------
     always @(posedge clk or negedge rst_n) begin : State_Transitions
         if (!rst_n) begin
             state <= SET_SEC; 
@@ -48,7 +48,7 @@ module control_unit (
 
     always @(state or select or en or up or down) 
         begin : Control_Logic
-            up_s=0; down_s=0;
+            up_s=0;  down_s=0;
             up_m=0;  down_m=0;
             up_h=0;  down_h=0;
             up_d=0;  down_d=0;

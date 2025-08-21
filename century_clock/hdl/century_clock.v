@@ -13,6 +13,7 @@ module century_clock (
     output      [6:0]   led6, led7
 );
 
+    //------ Connect between blocks  ------
     wire         pulse_s;
     wire         pulse_m;
     wire         pulse_h;
@@ -21,6 +22,7 @@ module century_clock (
     wire         TO, T, TN;
     wire         leap_year;
 
+    //------ For setting up/down  ------
     wire         up_s,   down_s;
     wire         up_m,   down_m;
     wire         up_h,   down_h;
@@ -28,9 +30,11 @@ module century_clock (
     wire         up_mo,  down_mo;
     wire         up_y,   down_y;
 
+    //------ Blinking leds & setting option  ------
     wire  [2:0]   blink;
     wire          tick_blink;
 
+    //------ Output BCD for each led  ------
     wire  [3:0]   sec_unit, sec_ten;
     wire  [3:0]   min_unit, min_ten;
     wire  [3:0]   hour_unit; 
@@ -41,13 +45,11 @@ module century_clock (
     wire  [1:0]   month_ten;
     wire  [3:0]   year_hund, year_ten, year_thou, year_unit;
 
+    //------ 1hz clock  ------
     wire clk_1hz;
-    wire ce_1hz;
 
-    wire sel_pulse;
-    wire up_pulse;
-    wire down_pulse;
 
+    // ======= CLOCK DIVIDER =======
     clock_divider #(
         .F_IN (50_000_000)
     ) u_div (
@@ -57,6 +59,7 @@ module century_clock (
         .clk_out(clk_1hz)   
     );
 
+    // ======= CONTROL UNIT =======
     control_unit u_cu (
         .clk        (clk_1hz),
         .rst_n      (rst_n),

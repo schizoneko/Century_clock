@@ -15,15 +15,15 @@ module count_minute #(
 
     always @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
-            min_unit        <= 0;
-            min_ten       <= 0;
-            pulse_minute_ten  <= 0;
+            min_unit            <= 0;
+            min_ten             <= 0;
+            pulse_minute_ten    <= 0;
         end else begin
             if (en_m) begin
                 if (min_unit == 9 && min_ten == 5) begin
-                    min_unit        <= 0;
-                    min_ten         <= 0;
-                    pulse_minute_ten  <= 0;
+                    min_unit            <= 0;
+                    min_ten             <= 0;
+                    pulse_minute_ten    <= 0;
                 end
                 else if (min_unit == 9) begin
                     min_unit     <= 0;

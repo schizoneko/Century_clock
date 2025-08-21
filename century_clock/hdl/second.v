@@ -15,15 +15,15 @@ module count_second #(
 
     always @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
-            sec_ten        <= 0;
-            sec_unit       <= 0;
-            pulse_second_ten  <= 0;
+            sec_ten             <= 0;
+            sec_unit            <= 0;
+            pulse_second_ten    <= 0;
         end else begin
             if (en_s) begin
                 if (sec_ten == 5 && sec_unit == 9) begin
-                    sec_ten        <= 0;
-                    sec_unit       <= 0;
-                    pulse_second_ten  <= 0;
+                    sec_ten             <= 0;
+                    sec_unit            <= 0;
+                    pulse_second_ten    <= 0;
                 end
                 else if (sec_unit == 9) begin
                     sec_unit   <= 0;
