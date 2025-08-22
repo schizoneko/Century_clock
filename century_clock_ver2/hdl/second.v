@@ -19,6 +19,8 @@ module count_second #(
     ) u_count_unit (
         .clk    (clk),
         .rst_n  (rst_n),
+        .preset0(1'b0),
+        .preset1(1'b0),
         .en     (en_s),
         .up     (up),
         .down   (down),

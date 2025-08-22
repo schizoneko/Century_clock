@@ -1,0 +1,199 @@
+module century_clock (
+    input               clk,
+    input               rst_n,
+    input               en_s,
+    input               display_mode,           // xx/hh/mmss | dd/momo/yyyy
+
+    input               up, down,
+    input               sel_blink,              // Select which section are being changed (ss, mm, hh, dd, momo, yryr)
+    input               sel_clk,                // 1: 10 kHz, 0: 1 Hz
+
+    output      [6:0]   led0, led1, led2, led3,
+    output      [6:0]   led4, led5,
+    output      [6:0]   led6, led7
+);
+
+    //------ Connect between blocks  ------
+    wire         pulse_s;
+    wire         pulse_m;
+    wire         pulse_h;
+    wire         day_28, day_29, day_30, day_31;
+    wire         mon_29, mon_30, mon_31;
+    wire         mon_12;
+    wire         leap_year;
+
+    wire         mo_set;
+
+    wire         day_set = day_31 | (day_30 & mon_30) | (mon_29 & day_28 & ~leap_year) | (mon_29 & day_29); 
+
+    //------ For setting up/down  ------
+    wire         up_s,   down_s;
+    wire         up_m,   down_m;
+    wire         up_h,   down_h;
+    wire         up_d,   down_d;
+    wire         up_mo,  down_mo;
+    wire         up_y,   down_y;
+
+    //------ Blinking leds & setting option  ------
+    wire  [2:0]   blink;
+    wire          tick_blink;
+
+    //------ Output BCD for each led  ------
+    wire  [3:0]   sec_unit, sec_ten;
+    wire  [3:0]   min_unit, min_ten;
+    wire  [3:0]   hour_unit; 
+    wire  [1:0]   hour_ten;
+    wire  [3:0]   day_unit;
+    wire  [1:0]   day_ten;
+    wire  [3:0]   month_unit;
+    wire  [1:0]   month_ten;
+    wire  [3:0]   year_hund, year_ten, year_thou, year_unit;
+
+    //------ 1hz clock  ------
+    wire clk_1hz;
+
+
+    // ======= CLOCK DIVIDER =======
+    clock_divider #(
+        .F_IN (50_000_000)
+    ) u_div (
+        .clk    (clk),
+        .rst_n  (rst_n),
+        .sel    (sel_clk),
+        .clk_out(clk_1hz)   
+    );
+
+    // ======= CONTROL UNIT =======
+    control_unit u_cu (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en         (en_s),
+        .select     (sel_blink),                 
+        .up         (up),               
+        .down       (down),
+        .up_s       (up_s),   
+        .down_s     (down_s),     
+        .up_m       (up_m),   
+        .down_m     (down_m),     
+        .up_h       (up_h),   
+        .down_h     (down_h),     
+        .up_d       (up_d),   
+        .down_d     (down_d),     
+        .up_mo      (up_mo),  
+        .down_mo    (down_mo),
+        .up_y       (up_y),
+        .down_y     (down_y),
+        .mo_set     (mo_set),
+        .tick_blink (tick_blink),     
+        .blink      (blink)                 
+    );
+
+    // ======= SECOND =======
+    count_second u_sec (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en_s       (en_s),
+        .up         (up_s),
+        .down       (down_s),
+        .sec_unit   (sec_unit),
+        .sec_ten    (sec_ten),
+        .pulse_s    (pulse_s)
+    );
+
+    // ======= MINUTE =======
+    count_minute u_min (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en_m       (pulse_s),  
+        .up         (up_m),
+        .down       (down_m),       
+        .min_unit   (min_unit),
+        .min_ten    (min_ten),
+        .pulse_m    (pulse_m)       
+    );
+
+    // ======= HOUR  =======
+    count_hour u_hour (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en_h       (pulse_m),     
+        .up         (up_h),
+        .down       (down_h),       
+        .hour_unit  (hour_unit),
+        .hour_ten   (hour_ten),
+        .pulse_h    (pulse_h)       
+    );
+
+    // =======  DAY  =======
+    count_day u_day (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en_d       (pulse_h),
+        .preset     ((day_set & pulse_h) | mo_set),  
+        .up         (up_d),
+        .down       (down_d),
+        .day_unit   (day_unit),
+        .day_ten    (day_ten),
+        .day_31     (day_31),
+        .day_30     (day_30),   
+        .day_29     (day_29),   
+        .day_28     (day_28)   
+    );
+
+    // ======= MONTH =======
+    count_month u_month (
+        .clk        (clk_1hz),
+        .rst_n      (rst_n),
+        .en_mo      (day_set & pulse_h), 
+        .preset     (mon_12 & day_31 & pulse_h), 
+        .up         (up_mo),
+        .down       (down_mo), 
+        .month_unit (month_unit),
+        .month_ten  (month_ten),
+        .mon_31     (mon_31),
+        .mon_30     (mon_30),
+        .mon_29     (mon_29),
+        .mon_12     (mon_12)
+    );
+
+    // =======  YEAR  =======
+    count_year u_year (
+        .clk       (clk_1hz),
+        .rst_n     (rst_n),
+        .en_yr     (mon_12 & day_31 & pulse_h),   
+        .up        (up_y),
+        .down      (down_y),           
+        .year_unit (year_unit),
+        .year_ten  (year_ten),
+        .year_hund (year_hund),
+        .year_thou (year_thou),
+        .leap_year (leap_year)
+    );
+
+    // ======= DISPLAY =======
+    display_mode u_disp (
+        .tick_blink (tick_blink),
+
+        .mode       (display_mode),
+        .blink_mode (blink),
+
+        .sec_unit   (sec_unit),
+        .sec_ten    (sec_ten),
+        .min_unit   (min_unit),
+        .min_ten    (min_ten),
+        .hour_unit  (hour_unit),
+        .hour_ten   (hour_ten),
+        .day_unit   (day_unit),
+        .day_ten    (day_ten),      
+        .month_unit (month_unit),
+        .month_ten  (month_ten),    
+        .year_hund  (year_hund),
+        .year_ten   (year_ten),
+        .year_thou  (year_thou),
+        .year_unit  (year_unit),
+
+        .led0(led0), .led1(led1), .led2(led2), .led3(led3),
+        .led4(led4), .led5(led5), .led6(led6), .led7(led7)
+    );
+
+endmodule

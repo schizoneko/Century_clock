@@ -133,6 +133,10 @@ module count_day #(
                             day_unit    <= 0;
                             day_ten     <= day_ten + 1;
                         end
+                        else if (day_ten >= 3 && day_unit > 1) begin
+                            day_unit    <= 1;
+                            day_ten     <= 0;
+                        end
                         else begin
                             day_unit    <= day_unit + 1;
                         end
@@ -146,6 +150,10 @@ module count_day #(
                         else if (day_unit == 9) begin
                             day_unit    <= 0;
                             day_ten     <= day_ten + 1;
+                        end
+                        else if (day_ten >= 3 && day_unit > 0) begin
+                            day_unit    <= 1;
+                            day_ten     <= 0;
                         end
                         else begin
                             day_unit    <= day_unit + 1;
@@ -163,6 +171,10 @@ module count_day #(
                                 day_unit    <= 0;
                                 day_ten     <= day_ten + 1;
                             end
+                            else if (day_ten >= 3) begin
+                                day_unit    <= 1;
+                                day_ten     <= 0;
+                            end
                             else begin
                                 day_unit    <= day_unit + 1;
                             end
@@ -176,6 +188,10 @@ module count_day #(
                             else if (day_unit == 9) begin
                                 day_unit    <= 0;
                                 day_ten     <= day_ten + 1;
+                            end
+                            else if ((day_ten == 2 && day_unit == 9) || day_ten > 2) begin
+                                day_unit    <= 1;
+                                day_ten     <= 0;
                             end
                             else begin
                                 day_unit    <= day_unit + 1;

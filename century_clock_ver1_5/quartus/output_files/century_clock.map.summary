@@ -1,12 +1,12 @@
-Analysis & Synthesis Status : Successful - Fri Aug 22 14:45:30 2025
+Analysis & Synthesis Status : Successful - Fri Aug 22 17:18:10 2025
 Quartus Prime Version : 23.1std.0 Build 991 11/28/2023 SC Lite Edition
 Revision Name : century_clock
 Top-level Entity Name : century_clock
 Family : Cyclone IV E
-Total logic elements : 454
-    Total combinational functions : 447
-    Dedicated logic registers : 99
-Total registers : 99
+Total logic elements : 399
+    Total combinational functions : 393
+    Dedicated logic registers : 98
+Total registers : 98
 Total pins : 64
 Total virtual pins : 0
 Total memory bits : 0
